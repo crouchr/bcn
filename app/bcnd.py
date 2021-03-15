@@ -1,3 +1,6 @@
+# https://developers.coinbase.com/api/v2#exchange-rates
+# https://www.coindesk.com/coindesk-api
+
 import time
 import requests
 import json
@@ -27,7 +30,7 @@ def get_bcn_price():
 
         response_dict = json.loads(response.content.decode('utf-8'))
 
-        # bcn_info['time'] = response_dict['time']['updateduk']
+        bcn_info['updateduk'] = response_dict['time']['updateduk']
         bcn_info['GBP'] = response_dict['bpi']['GBP']['rate_float']
 
         return response.status_code, bcn_info
@@ -40,7 +43,7 @@ def get_bcn_price():
 def main():
     version = get_env.get_version()
     verbose = get_env.get_verbose()
-
+    btc = get_env_app.get_num_bitcoin()
     telegraf_endpoint_host = get_env.get_telegraf_endpoint()    # can be read from ENV
 
     poll_secs = get_env_app.get_poll_secs()
@@ -55,11 +58,20 @@ def main():
     while True:
         try:
             status, bcn_info = get_bcn_price()
-            print(time.ctime() + ' : BitCoin rate (GBP) = ' + bcn_info['GBP'].__str__())
+            btc_in_gbp = float(btc) * bcn_info['GBP']      # what are my BTC worth in GBP
+
+            print(time.ctime() +\
+                  ' (updated at ' + bcn_info['updateduk'] + ')' + \
+                  ' : BTC rate (GBP) = ' + bcn_info['GBP'].__str__() +\
+                  ', BTC = ' + btc.__str__() +\
+                  ', GBP value = £' + round(btc_in_gbp, 2).__str__()
+                  )
 
             # Construct the metric bundle
             metrics = {
                     'metric_name': metric_name,
+                    'btc': btc,
+                    'btc_worth_gbp': btc_in_gbp,
                     'bitcoin_gbp': bcn_info['GBP']
             }
 
@@ -71,7 +83,7 @@ def main():
             print('Error : ' + e.__str__())
             print('sleeping...')
             # beep.warning(num_beeps=2, sound=3)
-            time.sleep(5)
+            time.sleep(180)     # wait 3 mins
             continue
 
 

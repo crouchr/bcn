@@ -10,3 +10,14 @@ def get_poll_secs():
     return poll_secs
 
 
+def get_num_bitcoin():
+    """
+    Return the number of BTC I own
+    :return:
+    """
+    if 'BITCOIN' in os.environ:
+        bitcoin_investment = os.environ['BITCOIN']
+    else:
+        bitcoin_investment = 0.00057766     # How many bitcoin do I own
+
+    return bitcoin_investment
