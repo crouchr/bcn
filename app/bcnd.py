@@ -48,7 +48,8 @@ def main():
     telegraf_endpoint_host = get_env.get_telegraf_endpoint()    # can be read from ENV
 
     poll_secs = get_env_app.get_poll_secs()
-
+    max_rate = -9999999
+    min_rate = 999999
     print('bcnd started, version=' + version)
     print('verbose=' + verbose.__str__())
     print('bitcoin_invested=' + btc_invested.__str__())
@@ -61,6 +62,13 @@ def main():
         try:
             status, bcn_info = get_bcn_price()
             btc_in_gbp = float(btc) * bcn_info['GBP']      # what are my BTC worth in GBP
+
+            if bcn_info['GBP'] < min_rate:
+                min_rate = bcn_info['GBP']
+                min_rate_time = time.ctime()
+            if bcn_info['GBP'] > max_rate:
+                max_rate = bcn_info['GBP']
+                max_rate_time = time.ctime()
 
             print(time.ctime() +\
                   ' (updated at ' + bcn_info['updateduk'] + ')' + \
@@ -76,9 +84,11 @@ def main():
                     'btc': btc,
                     'btc_worth_gbp': btc_in_gbp,
                     'bitcoin_gbp': bcn_info['GBP'],
+                    'btc_min_rate' : min_rate,
+                    'btc_max_rate': max_rate,
                     'btc_invested': btc_invested
             }
-            # pprint(metrics)
+            pprint(metrics)
 
             send_metrics_to_telegraf.send_metrics(telegraf_endpoint_host, metrics, verbose)
 
