@@ -32,6 +32,8 @@ def get_bcn_price():
 
         bcn_info['updateduk'] = response_dict['time']['updateduk']
         bcn_info['GBP'] = response_dict['bpi']['GBP']['rate_float']
+        bcn_info['USD'] = response_dict['bpi']['USD']['rate_float']
+        bcn_info['EUR'] = response_dict['bpi']['EUR']['rate_float']
 
         return response.status_code, bcn_info
 
@@ -50,6 +52,7 @@ def main():
     poll_secs = get_env_app.get_poll_secs()
     max_rate = -9999999
     min_rate = 999999
+
     print('bcnd started, version=' + version)
     print('verbose=' + verbose.__str__())
     print('bitcoin_invested=' + btc_invested.__str__())
@@ -61,6 +64,11 @@ def main():
     while True:
         try:
             status, bcn_info = get_bcn_price()
+            if status != 200:
+                print('error calling API, sleeping...')
+                time.sleep(60)
+                continue            # go to start of loop
+
             btc_in_gbp = float(btc) * bcn_info['GBP']      # what are my BTC worth in GBP
 
             if bcn_info['GBP'] < min_rate:
@@ -84,6 +92,8 @@ def main():
                     'btc': btc,
                     'btc_worth_gbp': btc_in_gbp,
                     'bitcoin_gbp': bcn_info['GBP'],
+                    'bitcoin_usd': bcn_info['USD'],
+                    'bitcoin_eur': bcn_info['EUR'],
                     'btc_min_rate' : min_rate,
                     'btc_max_rate': max_rate,
                     'btc_invested': btc_invested
