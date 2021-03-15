@@ -44,12 +44,14 @@ def main():
     version = get_env.get_version()
     verbose = get_env.get_verbose()
     btc = get_env_app.get_num_bitcoin()
+    btc_invested = get_env_app.get_gbp_invested()
     telegraf_endpoint_host = get_env.get_telegraf_endpoint()    # can be read from ENV
 
     poll_secs = get_env_app.get_poll_secs()
 
     print('bcnd started, version=' + version)
     print('verbose=' + verbose.__str__())
+    print('bitcoin_invested=' + btc_invested.__str__())
     print('telegraf_endpoint_host=' + telegraf_endpoint_host)
     print('poll_secs=' + poll_secs.__str__())
 
@@ -63,7 +65,8 @@ def main():
             print(time.ctime() +\
                   ' (updated at ' + bcn_info['updateduk'] + ')' + \
                   ' : BTC rate (GBP) = ' + bcn_info['GBP'].__str__() +\
-                  ', BTC = ' + btc.__str__() +\
+                  ', BTC = ' + btc.__str__() + \
+                  ', BTC invested = £' + round(btc_invested,2).__str__() + \
                   ', GBP value = £' + round(btc_in_gbp, 2).__str__()
                   )
 
@@ -72,8 +75,10 @@ def main():
                     'metric_name': metric_name,
                     'btc': btc,
                     'btc_worth_gbp': btc_in_gbp,
-                    'bitcoin_gbp': bcn_info['GBP']
+                    'bitcoin_gbp': bcn_info['GBP'],
+                    'btc_invested': btc_invested
             }
+            # pprint(metrics)
 
             send_metrics_to_telegraf.send_metrics(telegraf_endpoint_host, metrics, verbose)
 

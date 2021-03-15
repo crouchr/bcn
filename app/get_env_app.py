@@ -21,3 +21,16 @@ def get_num_bitcoin():
         bitcoin_investment = 0.00057766     # How many bitcoin do I own
 
     return bitcoin_investment
+
+
+def get_gbp_invested():
+    """
+    Return the number of GBP I have put into BTC
+    :return:
+    """
+    if 'GBP_INVESTED' in os.environ:
+        bitcoin_invested = os.environ['GBP_INVESTED']
+    else:
+        bitcoin_invested = 25.00     # How many bitcoin do I own
+
+    return bitcoin_invested
