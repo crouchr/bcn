@@ -67,7 +67,7 @@ def main():
                   ' : BTC rate (GBP) = ' + bcn_info['GBP'].__str__() +\
                   ', BTC = ' + btc.__str__() + \
                   ', BTC invested = £' + round(btc_invested,2).__str__() + \
-                  ', GBP value = £' + round(btc_in_gbp, 2).__str__()
+                  ', => GBP value = £' + round(btc_in_gbp, 2).__str__()
                   )
 
             # Construct the metric bundle
