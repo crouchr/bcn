@@ -1,0 +1,6 @@
+---
+# Test data - ensure this file is present as /data/btc/bcnd.yml
+gbp_invested: 48.52
+num_btc: 0.00113512
+high_alarm: 50000
+low_alarm: 20000

@@ -13,6 +13,15 @@ def get_version():
     return version
 
 
+def get_stage():
+    if 'STAGE' in os.environ:
+        stage = os.environ['STAGE']
+    else:
+        stage = 'DEV'               # i.e. running in PyCharm
+
+    return stage
+
+
 def get_verbose():
     if 'VERBOSE' in os.environ:
         verbose = os.environ['VERBOSE']
