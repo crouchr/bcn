@@ -35,10 +35,4 @@ def get_verbose():
     return verbose
 
 
-def get_telegraf_endpoint():
-    if 'TELEGRAF_ENDPOINT' in os.environ:
-        telegraf_endpoint = os.environ['TELEGRAF_ENDPOINT']
-    else:
-        telegraf_endpoint = '192.168.1.180'
 
-    return telegraf_endpoint

@@ -59,10 +59,7 @@ def main():
     verbose = get_env.get_verbose()
     stage = get_env.get_stage()
 
-    # btc = get_env_app.get_num_bitcoin()
-    # btc_invested = get_env_app.get_gbp_invested()
-
-    telegraf_endpoint_host = get_env.get_telegraf_endpoint()    # can be read from ENV
+    telegraf_endpoint_host = get_env_app.get_telegraf_endpoint()    # can be read from ENV
 
     poll_secs = get_env_app.get_poll_secs()
     max_rate = -9999999
@@ -132,12 +129,12 @@ def main():
 
             pprint(metrics)
 
-            # send_metrics_to_telegraf.send_metrics(telegraf_endpoint_host, metrics, verbose)
+            send_metrics_to_telegraf.send_metrics(telegraf_endpoint_host, metrics, verbose)
 
             time.sleep(poll_secs)
 
         except Exception as e:
-            print('Error : ' + e.__str__())
+            print('main() : Error : ' + e.__str__())
             print('sleeping...')
             # beep.warning(num_beeps=2, sound=3)
             time.sleep(180)     # wait 3 mins
