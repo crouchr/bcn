@@ -91,7 +91,7 @@ def main():
             gbp_invested = float(bcnd_vars['gbp_invested'])
             high_alarm = int(bcnd_vars['high_alarm'])
             low_alarm = int(bcnd_vars['low_alarm'])
-
+            return_percent_line = int(bcnd_vars['return_percent_line'])
             btc_in_gbp = float(btc) * bcn_info['GBP']      # what are my BTC worth in GBP
 
             if bcn_info['GBP'] < min_rate:
@@ -123,6 +123,7 @@ def main():
                     'btc_max_rate': max_rate,
                     'btc_invested': gbp_invested,
                     'return_percent': return_percent,
+                    'return_percent_line': return_percent_line,
                     'high_alarm': high_alarm,
                     'low_alarm': low_alarm,
             }
