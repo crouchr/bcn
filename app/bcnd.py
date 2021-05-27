@@ -62,8 +62,13 @@ def main():
     telegraf_endpoint_host = get_env_app.get_telegraf_endpoint()    # can be read from ENV
 
     poll_secs = get_env_app.get_poll_secs()
-    max_rate = -9999999
+    max_rate = -9999999             # GBP
     min_rate = 999999
+    max_rate_usd = -9999999
+    min_rate_usd = 999999
+
+    last_rate_usd = None
+
     if stage == 'PRD':
         bcnd_config_filename = '/data/btc/bcnd.yml'
     else:
@@ -101,6 +106,18 @@ def main():
                 max_rate = bcn_info['GBP']
                 max_rate_time = time.ctime()
 
+            if bcn_info['USD'] < min_rate_usd:
+                min_rate_usd = bcn_info['USD']
+                min_rate_usd_time = time.ctime()
+            if bcn_info['USD'] > max_rate_usd:
+                max_rate_usd = bcn_info['USD']
+                max_rate_usd_time = time.ctime()
+
+            if last_rate_usd == None:
+                last_rate_usd = bcn_info['USD']
+
+            btc_usd_change = round(bcn_info['USD'] - last_rate_usd, 2)
+
             return_percent = round(100 * btc_in_gbp / gbp_invested, 2)
 
             print(time.ctime() + \
@@ -121,6 +138,9 @@ def main():
                     'bitcoin_eur': bcn_info['EUR'],
                     'btc_min_rate': min_rate,
                     'btc_max_rate': max_rate,
+                    'btc_min_rate_usd': min_rate_usd,
+                    'btc_max_rate_usd': max_rate_usd,
+                    'btc_usd_change': btc_usd_change,
                     'btc_invested': gbp_invested,
                     'return_percent': return_percent,
                     'return_percent_line': return_percent_line,
@@ -131,6 +151,8 @@ def main():
             pprint(metrics)
 
             send_metrics_to_telegraf.send_metrics(telegraf_endpoint_host, metrics, verbose)
+
+            last_rate_usd = bcn_info['USD']
 
             time.sleep(poll_secs)
 
