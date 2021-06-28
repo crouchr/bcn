@@ -11,6 +11,7 @@ import get_env
 import get_env_app
 import send_metrics_to_telegraf
 import get_wallet_balance
+from bitcoin_rpc_client import Bitcoin
 
 
 def get_bcnd_config(bcnd_config_filename):
@@ -54,6 +55,13 @@ def get_bcn_price():
         print('get_bcn_price() : Error=' + e.__str__())
         return 500, None
 
+def get_blockahin_info():
+    """
+
+    :return:
+    """
+
+
 
 def main():
     version = get_env.get_version()
@@ -61,8 +69,11 @@ def main():
     stage = get_env.get_stage()
 
     telegraf_endpoint_host = get_env_app.get_telegraf_endpoint()    # can be read from ENV
-
     poll_secs = get_env_app.get_poll_secs()
+    bitcoind_host = get_env_app.get_bitcoind_host()
+    bitcoind_username = get_env_app.get_bitcoind_username()
+    bitcoind_password = get_env_app.get_bitcoind_password()
+
     max_rate = -9999999             # GBP
     min_rate = 999999
     max_rate_usd = -9999999
@@ -80,12 +91,32 @@ def main():
     print('stage=' + stage.__str__())
     print('bcnd_config_filename=' + bcnd_config_filename)
     print('telegraf_endpoint_host=' + telegraf_endpoint_host)
+    print('bitcoind_host=' + bitcoind_host.__str__())
+    print('bitcoind_username=' + bitcoind_username.__str__())
+    print('bitcoind_password=' + bitcoind_password.__str__())
     print('poll_secs=' + poll_secs.__str__())
 
     metric_name = 'bcnd_metrics_v2'
+    bitcoin = Bitcoin(bitcoind_username, bitcoind_password, bitcoind_host, 8332)
 
     while True:
         try:
+            blockchain_info = bitcoin.getblockchaininfo()
+            if 'result' in blockchain_info:     # if local bitcoind has just been restarted
+                time.sleep(240)
+                continue
+
+            mining_info = bitcoin.getmininginfo()
+
+            # mining info
+            difficulty = mining_info['difficulty']
+            blocks = mining_info['blocks']
+            networkhashps = mining_info['networkhashps']
+            pooled_tx = mining_info['pooledtx']
+
+            # blockchain info
+            size_on_disk = blockchain_info['size_on_disk']
+
             status, bcn_info = get_bcn_price()
             if status != 200:
                 print('error calling API, sleeping...')
@@ -132,16 +163,6 @@ def main():
 
             # return_percent = round(100 * btc_in_gbp / gbp_invested, 2)
 
-            # print(time.ctime() + \
-            #       ' (updated at ' + bcn_info['updateduk'] + ')' + \
-            #       ' : BTC rate (GBP) = ' + bcn_info['GBP'].__str__() + \
-            #       ', E_BTC = ' + e_btc.__str__() + \
-            #       ', A_BTC = ' + a_btc.__str__() + \
-            #       ', R_BTC = ' + r_btc.__str__() + \
-            #       ', BTC invested = £' + round(gbp_invested, 2).__str__() + \
-            #       ' : => GBP value = £' + round(btc_in_gbp, 2).__str__()
-            #       )
-
             # Construct the metric bundle
             metrics = {
                     'metric_name': metric_name,
@@ -160,7 +181,12 @@ def main():
                     'btc_max_rate': max_rate,
                     'btc_min_rate_usd': min_rate_usd,
                     'btc_max_rate_usd': max_rate_usd,
-                    'btc_usd_change': btc_usd_change
+                    'btc_usd_change': btc_usd_change,
+                    'blocks': blocks,
+                    'size_on_disk': size_on_disk,
+                    'difficulty': difficulty,
+                    'pooledtx':pooled_tx,
+                    'networkhash':networkhashps
             }
 
             pprint(metrics)
