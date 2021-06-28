@@ -165,7 +165,7 @@ def main():
 
             pprint(metrics)
 
-            # send_metrics_to_telegraf.send_metrics(telegraf_endpoint_host, metrics, verbose)
+            send_metrics_to_telegraf.send_metrics(telegraf_endpoint_host, metrics, verbose)
 
             last_rate_usd = bcn_info['USD']
 
