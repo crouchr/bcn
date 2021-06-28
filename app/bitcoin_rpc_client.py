@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+# Make calls to a reachable Bitcoin full node via RPC
 import json
 import logging
 import requests
