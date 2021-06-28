@@ -10,6 +10,7 @@ import yaml     # install as PyYaml
 import get_env
 import get_env_app
 import send_metrics_to_telegraf
+import get_wallet_balance
 
 
 def get_bcnd_config(bcnd_config_filename):
@@ -25,7 +26,7 @@ def get_bcnd_config(bcnd_config_filename):
 
 def get_bcn_price():
     """
-    Call REST API endpoint
+    Call REST API endpoint to get current BTC price
 
     :param endpoint:e.g. 'http://127.0.0.1:9500/wind_deg_to_wind_rose'
     :param query: e.g. query = {'wind_deg': wind_deg}
@@ -81,7 +82,7 @@ def main():
     print('telegraf_endpoint_host=' + telegraf_endpoint_host)
     print('poll_secs=' + poll_secs.__str__())
 
-    metric_name = 'bcnd_metrics'
+    metric_name = 'bcnd_metrics_v2'
 
     while True:
         try:
@@ -92,47 +93,66 @@ def main():
                 continue            # go to start of loop
 
             bcnd_vars = get_bcnd_config(bcnd_config_filename)
-            btc = float(bcnd_vars['num_btc'])
-            gbp_invested = float(bcnd_vars['gbp_invested'])
-            high_alarm = int(bcnd_vars['high_alarm'])
-            low_alarm = int(bcnd_vars['low_alarm'])
-            return_percent_line = int(bcnd_vars['return_percent_line'])
-            btc_in_gbp = float(btc) * bcn_info['GBP']      # what are my BTC worth in GBP
+            # btc = float(bcnd_vars['num_btc']) btc = number of richards BTC
+
+            e_wallet_address = bcnd_vars['e_wallet_address']
+            a_wallet_address = bcnd_vars['a_wallet_address']
+            r_wallet_address = bcnd_vars['r_wallet_address']
+            e_btc = get_wallet_balance.check_balance(e_wallet_address)
+            a_btc = get_wallet_balance.check_balance(a_wallet_address)
+            r_btc = get_wallet_balance.check_balance(r_wallet_address)
+
+            # gbp_invested = float(bcnd_vars['gbp_invested'])
+            # high_alarm = int(bcnd_vars['high_alarm'])
+            # low_alarm = int(bcnd_vars['low_alarm'])
+            # return_percent_line = int(bcnd_vars['return_percent_line'])
+
+            e_btc_in_gbp = float(e_btc) * bcn_info['GBP']       # what are E BTC worth in GBP
+            a_btc_in_gbp = float(a_btc) * bcn_info['GBP']       # what are A BTC worth in GBP
+            r_btc_in_gbp = float(r_btc) * bcn_info['GBP']       # what are R BTC worth in GBP
+            total_btc = e_btc + a_btc + r_btc
+            total_btc_in_gbp = total_btc * bcn_info['GBP']
 
             if bcn_info['GBP'] < min_rate:
                 min_rate = bcn_info['GBP']
-                min_rate_time = time.ctime()
+
             if bcn_info['GBP'] > max_rate:
                 max_rate = bcn_info['GBP']
-                max_rate_time = time.ctime()
 
             if bcn_info['USD'] < min_rate_usd:
                 min_rate_usd = bcn_info['USD']
-                min_rate_usd_time = time.ctime()
+
             if bcn_info['USD'] > max_rate_usd:
                 max_rate_usd = bcn_info['USD']
-                max_rate_usd_time = time.ctime()
 
             if last_rate_usd == None:
                 last_rate_usd = bcn_info['USD']
 
             btc_usd_change = round(bcn_info['USD'] - last_rate_usd, 2)
 
-            return_percent = round(100 * btc_in_gbp / gbp_invested, 2)
+            # return_percent = round(100 * btc_in_gbp / gbp_invested, 2)
 
-            print(time.ctime() + \
-                  ' (updated at ' + bcn_info['updateduk'] + ')' + \
-                  ' : BTC rate (GBP) = ' + bcn_info['GBP'].__str__() + \
-                  ', BTC = ' + btc.__str__() + \
-                  ', BTC invested = £' + round(gbp_invested, 2).__str__() + \
-                  ' : => GBP value = £' + round(btc_in_gbp, 2).__str__()
-                  )
+            # print(time.ctime() + \
+            #       ' (updated at ' + bcn_info['updateduk'] + ')' + \
+            #       ' : BTC rate (GBP) = ' + bcn_info['GBP'].__str__() + \
+            #       ', E_BTC = ' + e_btc.__str__() + \
+            #       ', A_BTC = ' + a_btc.__str__() + \
+            #       ', R_BTC = ' + r_btc.__str__() + \
+            #       ', BTC invested = £' + round(gbp_invested, 2).__str__() + \
+            #       ' : => GBP value = £' + round(btc_in_gbp, 2).__str__()
+            #       )
 
             # Construct the metric bundle
             metrics = {
                     'metric_name': metric_name,
-                    'btc': btc,
-                    'btc_worth_gbp': btc_in_gbp,
+                    'e_btc': e_btc,
+                    'a_btc': a_btc,
+                    'r_btc': r_btc,
+                    'total_btc': total_btc,
+                    'e_btc_worth_gbp': e_btc_in_gbp,
+                    'a_btc_worth_gbp': a_btc_in_gbp,
+                    'r_btc_worth_gbp': r_btc_in_gbp,
+                    'total_btc_worth_gbp': total_btc_in_gbp,
                     'bitcoin_gbp': bcn_info['GBP'],
                     'bitcoin_usd': bcn_info['USD'],
                     'bitcoin_eur': bcn_info['EUR'],
@@ -140,17 +160,12 @@ def main():
                     'btc_max_rate': max_rate,
                     'btc_min_rate_usd': min_rate_usd,
                     'btc_max_rate_usd': max_rate_usd,
-                    'btc_usd_change': btc_usd_change,
-                    'btc_invested': gbp_invested,
-                    'return_percent': return_percent,
-                    'return_percent_line': return_percent_line,
-                    'high_alarm': high_alarm,
-                    'low_alarm': low_alarm,
+                    'btc_usd_change': btc_usd_change
             }
 
             pprint(metrics)
 
-            send_metrics_to_telegraf.send_metrics(telegraf_endpoint_host, metrics, verbose)
+            # send_metrics_to_telegraf.send_metrics(telegraf_endpoint_host, metrics, verbose)
 
             last_rate_usd = bcn_info['USD']
 

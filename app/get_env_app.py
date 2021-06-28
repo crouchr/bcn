@@ -17,3 +17,13 @@ def get_telegraf_endpoint():
         telegraf_endpoint = '192.168.1.180'
 
     return telegraf_endpoint
+
+
+def get_db_hostname():
+    if 'SQL_DB_HOSTNAME' in os.environ:
+        hostname = os.environ['SQL_DB_HOSTNAME']
+    else:
+        hostname = '192.168.1.5'            # Use Test MySQL on Dev workstation
+        # hostname = '192.168.1.180'        # Use production MySQL
+
+    return hostname
