@@ -5,7 +5,8 @@ def get_poll_secs():
     if 'POLL_SECS' in os.environ:
         poll_secs = os.environ['POLL_SECS']
     else:
-        poll_secs = 300     # same as polling OpenWeather API
+        poll_secs = 120
+        # poll_secs = 10
 
     return poll_secs
 

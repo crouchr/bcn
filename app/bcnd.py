@@ -12,6 +12,7 @@ import get_env_app
 import send_metrics_to_telegraf
 import get_wallet_balance
 from bitcoin_rpc_client import Bitcoin
+import bitnodes_api
 
 
 def get_bcnd_config(bcnd_config_filename):
@@ -55,12 +56,6 @@ def get_bcn_price():
         print('get_bcn_price() : Error=' + e.__str__())
         return 500, None
 
-def get_blockahin_info():
-    """
-
-    :return:
-    """
-
 
 
 def main():
@@ -98,24 +93,48 @@ def main():
 
     metric_name = 'bcnd_metrics_v2'
     bitcoin = Bitcoin(bitcoind_username, bitcoind_password, bitcoind_host, 8332)
+    last_block_epoch = 0
+    last_block_number = 0
+    last_block_mine_time_mins = 0
 
     while True:
         try:
+            print('-----')
+            print(time.ctime())
             blockchain_info = bitcoin.getblockchaininfo()
             if 'result' in blockchain_info:     # if local bitcoind has just been restarted
                 time.sleep(240)
                 continue
 
+            number_of_bitcoin_nodes = bitnodes_api.get_number_bitcoin_nodes()
+            if number_of_bitcoin_nodes is None:
+                number_of_bitcoin_nodes = -10
+
             mining_info = bitcoin.getmininginfo()
 
             # mining info
             difficulty = mining_info['difficulty']
-            blocks = mining_info['blocks']
+            block_number = mining_info['blocks']
+            print('block_number=' + block_number.__str__())
             networkhashps = mining_info['networkhashps']
             pooled_tx = mining_info['pooledtx']
 
+            if block_number > last_block_number:
+                now = time.time()
+                blocks_processed = block_number - last_block_number
+                last_block_mine_time_mins = (now - last_block_epoch) / (60.0 * blocks_processed)
+                last_block_epoch = now
+                last_block_number = block_number
+                if last_block_mine_time_mins > 30:
+                    last_block_mine_time_mins = 0
+
+            print('blocks_processed=' + blocks_processed.__str__())
+            print('last_block_mine_time_mins=' + last_block_mine_time_mins.__str__())
+            print('last_block_number=' + last_block_number.__str__())
+
             # blockchain info
             size_on_disk = blockchain_info['size_on_disk']
+            size_on_disk_gbytes = round(size_on_disk / (1024 * 1024 * 1024), 2)
 
             status, bcn_info = get_bcn_price()
             if status != 200:
@@ -170,9 +189,9 @@ def main():
                     'a_btc': a_btc,
                     'r_btc': r_btc,
                     'total_btc': total_btc,
-                    'e_btc_worth_gbp': e_btc_in_gbp,
-                    'a_btc_worth_gbp': a_btc_in_gbp,
-                    'r_btc_worth_gbp': r_btc_in_gbp,
+                    'e_btc_worth_gbp': round(e_btc_in_gbp, 2),
+                    'a_btc_worth_gbp': round(a_btc_in_gbp, 2),
+                    'r_btc_worth_gbp': round(r_btc_in_gbp, 2),
                     'total_btc_worth_gbp': total_btc_in_gbp,
                     'bitcoin_gbp': bcn_info['GBP'],
                     'bitcoin_usd': bcn_info['USD'],
@@ -182,11 +201,13 @@ def main():
                     'btc_min_rate_usd': min_rate_usd,
                     'btc_max_rate_usd': max_rate_usd,
                     'btc_usd_change': btc_usd_change,
-                    'blocks': blocks,
+                    'block_number': block_number,
                     'size_on_disk': size_on_disk,
+                    'size_on_disk_gbytes': size_on_disk_gbytes,
                     'difficulty': difficulty,
                     'pooledtx':pooled_tx,
-                    'networkhash':networkhashps
+                    'networkhash':networkhashps,
+                    'num_btc_nodes': number_of_bitcoin_nodes
             }
 
             pprint(metrics)
