@@ -52,6 +52,17 @@ def get_bitcoind_host():
     if 'BITCOIND_HOST' in os.environ:
         bitcoind_host = os.environ['BITCOIND_HOST']
     else:
-        bitcoind_host = 'j1900'
+        # bitcoind_host = 'j1900'
+        bitcoind_host = '192.168.1.6'
 
     return bitcoind_host
+
+
+# Node where bfgminer/cfgminer run
+def get_bitcoin_miner_host():
+    if 'BITCOIN_MINER_HOST' in os.environ:
+        bitcoin_miner_host = os.environ['BITCOIN_MINER_HOST']
+    else:
+        bitcoin_miner_host = '192.168.1.6'
+
+    return bitcoin_miner_host

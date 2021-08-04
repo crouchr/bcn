@@ -37,6 +37,7 @@ def main():
     bitcoind_host = get_env_app.get_bitcoind_host()
     bitcoind_username = get_env_app.get_bitcoind_username()
     bitcoind_password = get_env_app.get_bitcoind_password()
+    bitcoin_miner_host = get_env_app.get_bitcoin_miner_host()
 
     max_rate = -9999999             # GBP
     min_rate = 999999
@@ -56,6 +57,7 @@ def main():
     print('bcnd_config_filename=' + bcnd_config_filename)
     print('telegraf_endpoint_host=' + telegraf_endpoint_host)
     print('bitcoind_host=' + bitcoind_host.__str__())
+    print('bitcoin_miner_host=' + bitcoin_miner_host.__str__())
     print('bitcoind_username=' + bitcoind_username.__str__())
     print('bitcoind_password=' + bitcoind_password.__str__())
     print('poll_secs=' + poll_secs.__str__())
@@ -152,7 +154,7 @@ def main():
             # return_percent = round(100 * btc_in_gbp / gbp_invested, 2)
 
             # My lottery mining rig
-            miner_results = bfgminer_api.get_miner_summary('j1900', 4028)
+            miner_results = bfgminer_api.get_miner_summary(bitcoin_miner_host, 4028)
             if miner_results['status'] == True:
                 miner_found_blocks = miner_results['found_blocks']
                 miner_tstamp = miner_results['tstamp']
