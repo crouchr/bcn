@@ -13,7 +13,7 @@ import send_metrics_to_telegraf
 import get_wallet_balance
 from bitcoin_rpc_client import Bitcoin
 import bitnodes_api
-
+import bfgminer_api
 
 def get_bcnd_config(bcnd_config_filename):
 
@@ -160,7 +160,7 @@ def main():
             a_btc_in_gbp = float(a_btc) * bcn_info['GBP']       # what are A BTC worth in GBP
             r_btc_in_gbp = float(r_btc) * bcn_info['GBP']       # what are R BTC worth in GBP
             total_btc = e_btc + a_btc + r_btc
-            total_btc_in_gbp = total_btc * bcn_info['GBP']
+            total_btc_in_gbp = round(total_btc * bcn_info['GBP'], 2)
 
             if bcn_info['GBP'] < min_rate:
                 min_rate = bcn_info['GBP']
@@ -180,6 +180,26 @@ def main():
             btc_usd_change = round(bcn_info['USD'] - last_rate_usd, 2)
 
             # return_percent = round(100 * btc_in_gbp / gbp_invested, 2)
+
+            # My lottery mining rig
+            miner_results = bfgminer_api.get_miner_summary('j1900', 4028)
+            if miner_results['status'] == True:
+                miner_found_blocks = miner_results['found_blocks']
+                miner_tstamp = miner_results['tstamp']
+                # miner_giga_hps_avg = miner_results['giga_hps_avg']
+                miner_giga_hps_20s = miner_results['giga_hps_20s']
+                miner_code = miner_results['code']
+                miner_hw_errors = miner_results['hw_errors']
+                miner_remote_failures = miner_results['remote_failures']
+                miner_hashing_online = miner_results['miner_hashing_online']
+            else:
+                miner_found_blocks = -10
+                miner_tstamp = -10
+                miner_giga_hps_20s = -10
+                miner_code = -10
+                miner_hw_errors = -10
+                miner_remote_failures = -10
+                miner_hashing_online = -10
 
             # Construct the metric bundle
             metrics = {
@@ -206,12 +226,19 @@ def main():
                     'difficulty': difficulty,
                     'pooledtx':pooled_tx,
                     'networkhash':networkhashps,
-                    'num_btc_nodes': number_of_bitcoin_nodes
+                    'num_btc_nodes': number_of_bitcoin_nodes,
+                    'miner_found_blocks': miner_found_blocks,
+                    'miner_tstamp':miner_tstamp,
+                    'miner_giga_hps_20s': miner_giga_hps_20s,
+                    'miner_code':miner_code,
+                    'miner_hw_errors':miner_hw_errors,
+                    'miner_remote_failures':miner_remote_failures,
+                    'miner_hashing_online': miner_hashing_online
             }
 
             pprint(metrics)
 
-            # send_metrics_to_telegraf.send_metrics(telegraf_endpoint_host, metrics, verbose)
+            send_metrics_to_telegraf.send_metrics(telegraf_endpoint_host, metrics, verbose)
 
             last_rate_usd = bcn_info['USD']
 
@@ -225,5 +252,5 @@ def main():
             continue
 
 
-if __name__ == '__main__' :
+if __name__ == '__main__':
     main()
