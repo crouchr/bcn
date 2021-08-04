@@ -3,9 +3,16 @@ url = "https://pypi.org/simple"
 verify_ssl = true
 name = "pypi"
 
+# My Python package repo on web.ermin
+[[source]]
+url = "http://192.168.1.102/python-packages"
+verify_ssl = false
+name = "ermin"
+
 [packages]
 requests = "==2.25.1"
 pyyaml = "==5.4.1"
+cryptofuncs = {version="1.0.1", index="ermin"}
 
 [dev-packages]
 

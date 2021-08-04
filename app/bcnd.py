@@ -57,7 +57,6 @@ def get_bcn_price():
         return 500, None
 
 
-
 def main():
     version = get_env.get_version()
     verbose = get_env.get_verbose()
@@ -101,7 +100,7 @@ def main():
         try:
             print('-----')
             print(time.ctime())
-            blockchain_info = bitcoin.getblockchaininfo()
+            status, blockchain_info = bitcoin.getblockchaininfo()
             if 'result' in blockchain_info:     # if local bitcoind has just been restarted
                 time.sleep(240)
                 continue
@@ -110,7 +109,7 @@ def main():
             if number_of_bitcoin_nodes is None:
                 number_of_bitcoin_nodes = -10
 
-            mining_info = bitcoin.getmininginfo()
+            status, mining_info = bitcoin.getmininginfo()
 
             # mining info
             difficulty = mining_info['difficulty']
@@ -212,7 +211,7 @@ def main():
 
             pprint(metrics)
 
-            send_metrics_to_telegraf.send_metrics(telegraf_endpoint_host, metrics, verbose)
+            # send_metrics_to_telegraf.send_metrics(telegraf_endpoint_host, metrics, verbose)
 
             last_rate_usd = bcn_info['USD']
 
