@@ -2,18 +2,19 @@
 # https://www.coindesk.com/coindesk-api
 
 import time
-import requests
-import json
+
 from pprint import pprint
 import yaml     # install as PyYaml
 
 import get_env
 import get_env_app
 import send_metrics_to_telegraf
-import get_wallet_balance
+import blockchaininfo_api
 from bitcoin_rpc_client import Bitcoin
 import bitnodes_api
 import bfgminer_api
+import coinbase_api
+
 
 def get_bcnd_config(bcnd_config_filename):
 
@@ -24,37 +25,6 @@ def get_bcnd_config(bcnd_config_filename):
     return bcnd_vars
 
 # btc, btc_invested, min_rate, max_rate = get_bcnd_config()
-
-
-def get_bcn_price():
-    """
-    Call REST API endpoint to get current BTC price
-
-    :param endpoint:e.g. 'http://127.0.0.1:9500/wind_deg_to_wind_rose'
-    :param query: e.g. query = {'wind_deg': wind_deg}
-    :return:
-    """
-    try:
-        bcn_info = {}
-        endpoint = 'https://api.coindesk.com/v1/bpi/currentprice.json'
-
-        response = requests.get(endpoint,)
-
-        if response.status_code != 200:
-            return 500, None
-
-        response_dict = json.loads(response.content.decode('utf-8'))
-
-        bcn_info['updateduk'] = response_dict['time']['updateduk']
-        bcn_info['GBP'] = response_dict['bpi']['GBP']['rate_float']
-        bcn_info['USD'] = response_dict['bpi']['USD']['rate_float']
-        bcn_info['EUR'] = response_dict['bpi']['EUR']['rate_float']
-
-        return response.status_code, bcn_info
-
-    except Exception as e:
-        print('get_bcn_price() : Error=' + e.__str__())
-        return 500, None
 
 
 def main():
@@ -135,7 +105,7 @@ def main():
             size_on_disk = blockchain_info['size_on_disk']
             size_on_disk_gbytes = round(size_on_disk / (1024 * 1024 * 1024), 2)
 
-            status, bcn_info = get_bcn_price()
+            status, bcn_info = coinbase_api.get_bcn_price()
             if status != 200:
                 print('error calling API, sleeping...')
                 time.sleep(60)
@@ -147,9 +117,9 @@ def main():
             e_wallet_address = bcnd_vars['e_wallet_address']
             a_wallet_address = bcnd_vars['a_wallet_address']
             r_wallet_address = bcnd_vars['r_wallet_address']
-            e_btc = get_wallet_balance.check_balance(e_wallet_address)
-            a_btc = get_wallet_balance.check_balance(a_wallet_address)
-            r_btc = get_wallet_balance.check_balance(r_wallet_address)
+            e_btc = blockchaininfo_api.check_balance(e_wallet_address)
+            a_btc = blockchaininfo_api.check_balance(a_wallet_address)
+            r_btc = blockchaininfo_api.check_balance(r_wallet_address)
 
             # gbp_invested = float(bcnd_vars['gbp_invested'])
             # high_alarm = int(bcnd_vars['high_alarm'])
@@ -238,7 +208,7 @@ def main():
 
             pprint(metrics)
 
-            send_metrics_to_telegraf.send_metrics(telegraf_endpoint_host, metrics, verbose)
+            # send_metrics_to_telegraf.send_metrics(telegraf_endpoint_host, metrics, verbose)
 
             last_rate_usd = bcn_info['USD']
 
