@@ -12,7 +12,7 @@ import send_metrics_to_telegraf
 import blockchaininfo_api
 from bitcoin_rpc_client import Bitcoin
 import bitnodes_api
-import bfgminer_api
+import xgminer_api
 import coinbase_api
 
 
@@ -154,12 +154,12 @@ def main():
             # return_percent = round(100 * btc_in_gbp / gbp_invested, 2)
 
             # My lottery mining rig
-            miner_results = bfgminer_api.get_miner_summary(bitcoin_miner_host, 4028)
+            miner_results = xgminer_api.get_miner_summary(bitcoin_miner_host, 4028)
             if miner_results['status'] == True:
                 miner_found_blocks = miner_results['found_blocks']
                 miner_tstamp = miner_results['tstamp']
                 # miner_giga_hps_avg = miner_results['giga_hps_avg']
-                miner_giga_hps_20s = miner_results['giga_hps_20s']
+                miner_giga_hps = miner_results['giga_hps']
                 miner_code = miner_results['code']
                 miner_hw_errors = miner_results['hw_errors']
                 miner_remote_failures = miner_results['remote_failures']
@@ -167,7 +167,7 @@ def main():
             else:
                 miner_found_blocks = -10
                 miner_tstamp = -10
-                miner_giga_hps_20s = -10
+                miner_giga_hps = -10
                 miner_code = -10
                 miner_hw_errors = -10
                 miner_remote_failures = -10
@@ -196,15 +196,15 @@ def main():
                     'size_on_disk': size_on_disk,
                     'size_on_disk_gbytes': size_on_disk_gbytes,
                     'difficulty': difficulty,
-                    'pooledtx':pooled_tx,
-                    'networkhash':networkhashps,
+                    'pooledtx': pooled_tx,
+                    'networkhash': networkhashps,
                     'num_btc_nodes': number_of_bitcoin_nodes,
                     'miner_found_blocks': miner_found_blocks,
-                    'miner_tstamp':miner_tstamp,
-                    'miner_giga_hps_20s': miner_giga_hps_20s,
-                    'miner_code':miner_code,
-                    'miner_hw_errors':miner_hw_errors,
-                    'miner_remote_failures':miner_remote_failures,
+                    'miner_tstamp': miner_tstamp,
+                    'miner_giga_hps': miner_giga_hps,
+                    'miner_code': miner_code,
+                    'miner_hw_errors': miner_hw_errors,
+                    'miner_remote_failures': miner_remote_failures,
                     'miner_hashing_online': miner_hashing_online
             }
 
