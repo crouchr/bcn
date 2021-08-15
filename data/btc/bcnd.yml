@@ -4,4 +4,5 @@ gbp_invested: 0
 e_wallet_address: '1LiQTXcXK9ccNG9cC2YBYiad5AsM9RuNE5'
 a_wallet_address: '13V9NsiTwKDboqXtu7obv2vjtEMtnMs4AQ'
 r_wallet_address: '19HvidH9wno6HtZg5JTNEqH6QuiFYjU2zp'
+# cbase_wallet_address does not work
 cbase_wallet_address: '3LUzijnBWK5JgerSb7mEu19UaQvtDnP1MW'
