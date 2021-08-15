@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "468edb122ef8192a5d2884af55f2c92ab397fd5f07e14f0a12a49b3313cd1517"
+            "sha256": "fdf2a2a9b33c9142e726536fefb0f5706e9d0510ed5b09ddfcb1e899bdbbf5ce"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -39,10 +39,10 @@
         },
         "cryptofuncs": {
             "hashes": [
-                "sha256:e83103027b4795f80da8a8120f886ab5b7c9de3f27fa88b5e998416a28ada2d3"
+                "sha256:952017f25e5de1644fdd501cee226d22c4fad0f22105cfa82d260230722db6e7"
             ],
             "index": "ermin",
-            "version": "==1.0.8"
+            "version": "==1.0.14"
         },
         "idna": {
             "hashes": [

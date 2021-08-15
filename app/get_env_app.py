@@ -66,3 +66,4 @@ def get_bitcoin_miner_host():
         bitcoin_miner_host = '192.168.1.6'
 
     return bitcoin_miner_host
+

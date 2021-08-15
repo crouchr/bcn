@@ -12,7 +12,7 @@ name = "ermin"
 [packages]
 requests = "==2.25.1"
 pyyaml = "==5.4.1"
-cryptofuncs = {version="1.0.8", index="ermin"}
+cryptofuncs = {version="1.0.14", index="ermin"}
 
 [dev-packages]
 
