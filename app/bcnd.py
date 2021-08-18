@@ -126,12 +126,14 @@ def main():
             e_wallet_address = bcnd_vars['e_wallet_address']
             a_wallet_address = bcnd_vars['a_wallet_address']
             r_wallet_address = bcnd_vars['r_wallet_address']
-            cbase_wallet_address = bcnd_vars['cbase_wallet_address']
+            exchange_btc = bcnd_vars['hot_wallet_btc']
+            # cbase_wallet_address = bcnd_vars['cbase_wallet_address']
 
             e_btc = blockchaininfo_api.check_balance(e_wallet_address)
             a_btc = blockchaininfo_api.check_balance(a_wallet_address)
-            r_btc = blockchaininfo_api.check_balance(r_wallet_address)
-            cbase_btc = blockchaininfo_api.check_balance(cbase_wallet_address)
+            r_btc = blockchaininfo_api.check_balance(r_wallet_address) + exchange_btc
+            # Doesn't work' - I need to query via coinbase private API ?
+            # cbase_btc = blockchaininfo_api.check_balance(cbase_wallet_address)
 
             # gbp_invested = float(bcnd_vars['gbp_invested'])
             # high_alarm = int(bcnd_vars['high_alarm'])
@@ -141,9 +143,10 @@ def main():
             e_btc_in_gbp = float(e_btc) * bcn_info['GBP']       # what are E BTC worth in GBP
             a_btc_in_gbp = float(a_btc) * bcn_info['GBP']       # what are A BTC worth in GBP
             r_btc_in_gbp = float(r_btc) * bcn_info['GBP']       # what are R BTC worth in GBP
-            cbase_btc_in_gbp = float(cbase_btc) * bcn_info['GBP']
+            exchange_btc_in_gbp = float(exchange_btc) * bcn_info['GBP']
 
-            total_btc = e_btc + a_btc + r_btc + cbase_btc
+            # Crouches BTC totals
+            total_btc = e_btc + a_btc + r_btc + exchange_btc
             total_btc_in_gbp = round(total_btc * bcn_info['GBP'], 2)
 
             if bcn_info['GBP'] < min_rate:
@@ -191,12 +194,12 @@ def main():
                     'e_btc': e_btc,
                     'a_btc': a_btc,
                     'r_btc': r_btc,
-                    'cbase_btc': cbase_btc,
+                    'exchange_btc': exchange_btc,
                     'total_btc': total_btc,
                     'e_btc_worth_gbp': round(e_btc_in_gbp, 2),
                     'a_btc_worth_gbp': round(a_btc_in_gbp, 2),
                     'r_btc_worth_gbp': round(r_btc_in_gbp, 2),
-                    'cbase_btc_worth_gbp': round(cbase_btc_in_gbp, 2),
+                    'exchange_btc_worth_gbp': round(exchange_btc_in_gbp, 2),
                     'total_btc_worth_gbp': total_btc_in_gbp,
                     'bitcoin_gbp': bcn_info['GBP'],
                     'bitcoin_usd': bcn_info['USD'],
