@@ -131,7 +131,9 @@ def main():
 
             e_btc = blockchaininfo_api.check_balance(e_wallet_address)
             a_btc = blockchaininfo_api.check_balance(a_wallet_address)
-            r_btc = blockchaininfo_api.check_balance(r_wallet_address) + exchange_btc
+            r_btc = blockchaininfo_api.check_balance(r_wallet_address)
+
+            r_btc_total = r_btc + exchange_btc
             # Doesn't work' - I need to query via coinbase private API ?
             # cbase_btc = blockchaininfo_api.check_balance(cbase_wallet_address)
 
@@ -140,13 +142,14 @@ def main():
             # low_alarm = int(bcnd_vars['low_alarm'])
             # return_percent_line = int(bcnd_vars['return_percent_line'])
 
-            e_btc_in_gbp = float(e_btc) * bcn_info['GBP']       # what are E BTC worth in GBP
-            a_btc_in_gbp = float(a_btc) * bcn_info['GBP']       # what are A BTC worth in GBP
-            r_btc_in_gbp = float(r_btc) * bcn_info['GBP']       # what are R BTC worth in GBP
+            e_btc_in_gbp = float(e_btc) * bcn_info['GBP']           # what are E BTC worth in GBP
+            a_btc_in_gbp = float(a_btc) * bcn_info['GBP']           # what are A BTC worth in GBP
+            r_btc_in_gbp = float(r_btc_total) * bcn_info['GBP']     # what are R BTC worth in GBP
+
             exchange_btc_in_gbp = float(exchange_btc) * bcn_info['GBP']
 
             # Crouches BTC totals
-            total_btc = e_btc + a_btc + r_btc + exchange_btc
+            total_btc = e_btc + a_btc + r_btc_total
             total_btc_in_gbp = round(total_btc * bcn_info['GBP'], 2)
 
             if bcn_info['GBP'] < min_rate:
@@ -194,6 +197,7 @@ def main():
                     'e_btc': e_btc,
                     'a_btc': a_btc,
                     'r_btc': r_btc,
+                    'r_btc_total': r_btc_total,
                     'exchange_btc': exchange_btc,
                     'total_btc': total_btc,
                     'e_btc_worth_gbp': round(e_btc_in_gbp, 2),

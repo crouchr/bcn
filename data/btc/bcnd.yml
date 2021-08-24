@@ -6,4 +6,4 @@ a_wallet_address: '13V9NsiTwKDboqXtu7obv2vjtEMtnMs4AQ'
 r_wallet_address: '19HvidH9wno6HtZg5JTNEqH6QuiFYjU2zp'
 
 # Number of BTC stored in Coinbase as short-term (not HODL)
-hot_wallet_btc: 0.00864789
+hot_wallet_btc: 0.01
