@@ -6,4 +6,7 @@ a_wallet_address: '13V9NsiTwKDboqXtu7obv2vjtEMtnMs4AQ'
 r_wallet_address: '19HvidH9wno6HtZg5JTNEqH6QuiFYjU2zp'
 
 # Number of BTC stored in Coinbase as short-term (not HODL)
-hot_wallet_btc: 0.01
+coinbase_wallet_btc: 0.01
+
+# Number of BTC stored in BlockFi (yield)
+blockfi_wallet_btc: 0.02

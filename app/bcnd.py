@@ -126,14 +126,14 @@ def main():
             e_wallet_address = bcnd_vars['e_wallet_address']
             a_wallet_address = bcnd_vars['a_wallet_address']
             r_wallet_address = bcnd_vars['r_wallet_address']
-            exchange_btc = bcnd_vars['hot_wallet_btc']
-            # cbase_wallet_address = bcnd_vars['cbase_wallet_address']
+            exchange_btc = bcnd_vars['coinbase_wallet_btc']
+            blockfi_btc = bcnd_vars['blockfi_wallet_btc']
 
             e_btc = blockchaininfo_api.check_balance(e_wallet_address)
             a_btc = blockchaininfo_api.check_balance(a_wallet_address)
             r_btc = blockchaininfo_api.check_balance(r_wallet_address)
 
-            r_btc_total = r_btc + exchange_btc
+            r_btc_total = r_btc + exchange_btc + blockfi_btc
             # Doesn't work' - I need to query via coinbase private API ?
             # cbase_btc = blockchaininfo_api.check_balance(cbase_wallet_address)
 
@@ -147,6 +147,7 @@ def main():
             r_btc_in_gbp = float(r_btc_total) * bcn_info['GBP']     # what are R BTC worth in GBP
 
             exchange_btc_in_gbp = float(exchange_btc) * bcn_info['GBP']
+            blockfi_btc_in_gbp = float(blockfi_btc) * bcn_info['GBP']
 
             # Crouches BTC totals
             total_btc = e_btc + a_btc + r_btc_total
@@ -199,11 +200,13 @@ def main():
                     'r_btc': r_btc,
                     'r_btc_total': r_btc_total,
                     'exchange_btc': exchange_btc,
+                    'blockfi_btc': blockfi_btc,
                     'total_btc': total_btc,
                     'e_btc_worth_gbp': round(e_btc_in_gbp, 2),
                     'a_btc_worth_gbp': round(a_btc_in_gbp, 2),
                     'r_btc_worth_gbp': round(r_btc_in_gbp, 2),
                     'exchange_btc_worth_gbp': round(exchange_btc_in_gbp, 2),
+                    'blockfi_btc_in_gbp': blockfi_btc_in_gbp,
                     'total_btc_worth_gbp': total_btc_in_gbp,
                     'bitcoin_gbp': bcn_info['GBP'],
                     'bitcoin_usd': bcn_info['USD'],
